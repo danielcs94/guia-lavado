@@ -1,0 +1,94 @@
+@let advice = currentAdvice();
+
+@if (advice.needs_retake) {
+  <section class="card verdict retake">
+    <h2>No se lee bien</h2>
+    <p>{{ advice.message }}</p>
+  </section>
+} @else {
+  <section class="card verdict" [class]="advice.verdict">
+    <h2>{{ advice.verdict_label }}</h2>
+    @if (advice.reasons.length) {
+      <ul>
+        @for (reason of advice.reasons; track reason) {
+          <li>{{ reason }}</li>
+        }
+      </ul>
+    } @else {
+      <p>Sin nada especial: lavado normal.</p>
+    }
+  </section>
+
+  <section class="card garment">
+    <label for="garment">¿Qué prenda es?</label>
+    <select id="garment" [ngModel]="garmentType()" (ngModelChange)="garmentChange.emit($event)">
+      <option [ngValue]="null">Sin indicar</option>
+      @for (garment of garments; track garment[0]) {
+        <option [ngValue]="garment[0]">{{ garment[1] }}</option>
+      }
+    </select>
+    <p class="small">Las americanas, abrigos y plumíferos cambian la recomendación.</p>
+  </section>
+
+  @if (advice.appliances.length) {
+    <section class="card">
+      <h3>En tus electrodomésticos</h3>
+      @for (suggestion of advice.appliances; track suggestion.appliance_id + suggestion.step) {
+        <div class="suggestion">
+          <span class="step">{{ suggestion.step === 'wash' ? 'Lavar' : 'Secar' }} · {{ suggestion.appliance_name }}</span>
+          <p>{{ suggestion.message }}</p>
+        </div>
+      }
+    </section>
+  }
+
+  @if (advice.settings; as settings) {
+    <section class="card">
+      <h3>Cómo lavarla</h3>
+      <dl class="settings">
+        <dt>Lavado</dt>
+        <dd>{{ texts.CYCLES[settings.cycle] }}</dd>
+        <dt>Temperatura máx.</dt>
+        <dd>{{ settings.max_temp }}°</dd>
+        @if (settings.method === 'machine') {
+          <dt>Centrifugado máx.</dt>
+          <dd>{{ settings.max_spin }} rpm</dd>
+        }
+        <dt>Lejía</dt>
+        <dd>{{ texts.BLEACH[settings.bleach] }}</dd>
+        <dt>Secadora</dt>
+        <dd>{{ texts.TUMBLE_DRY[settings.tumble_dry] }}</dd>
+        @if (settings.natural_dry) {
+          <dt>Secado natural</dt>
+          <dd>{{ texts.NATURAL_DRY[settings.natural_dry] }}</dd>
+        }
+        <dt>Plancha</dt>
+        <dd>{{ texts.IRON[settings.iron] }}</dd>
+      </dl>
+    </section>
+  }
+
+  @if (advice.tips.length) {
+    <section class="card">
+      <h3>Consejos</h3>
+      <ul>
+        @for (tip of advice.tips; track tip) {
+          <li>{{ tip }}</li>
+        }
+      </ul>
+    </section>
+  }
+}
+
+@if (label().readable) {
+  <section class="card read">
+    <h3>Lo que he leído</h3>
+    @if (composition()) {
+      <p><strong>Composición:</strong> {{ composition() }}</p>
+    }
+    @for (note of label().notes; track note) {
+      <p>«{{ note }}»</p>
+    }
+    <p class="small">Si algún símbolo no coincide con tu etiqueta, pulsa «Corregir los símbolos».</p>
+  </section>
+}

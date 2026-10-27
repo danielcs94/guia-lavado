@@ -1,0 +1,79 @@
+<header class="intro">
+  <h1>Electrodomésticos</h1>
+  <p>Haz una foto al panel de tu lavadora o secadora. Leo sus programas y los uso para recomendarte el adecuado.</p>
+</header>
+
+@if (editing(); as current) {
+  <app-appliance-editor
+    [appliance]="current === 'new' ? null : current"
+    [saving]="saving()"
+    (save)="onSave($event)"
+    (cancel)="editing.set(null)"
+  />
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+} @else {
+  <section class="card add">
+    <label for="name">Nombre (opcional)</label>
+    <input id="name" type="text" placeholder="Lavadora de casa" maxlength="60" [ngModel]="name()" (ngModelChange)="name.set($event)" />
+    <app-photo-button
+      [text]="scanning() ? 'Leyendo el panel…' : 'Hacer foto al panel'"
+      [disabled]="scanning()"
+      (photo)="onPhoto($event)"
+    />
+    @if (scanning()) {
+      <div class="loading" role="status">
+        <span class="spinner"></span>
+        Leyendo los programas. En el Mac puede tardar hasta un minuto.
+      </div>
+    } @else {
+      <button type="button" class="secondary" (click)="edit('new')">Añadirlo a mano</button>
+    }
+  </section>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @for (appliance of appliances(); track appliance.id) {
+    <article class="card appliance">
+      <button type="button" class="summary" (click)="toggle(appliance.id)" [attr.aria-expanded]="expandedId() === appliance.id">
+        <span>
+          <strong>{{ appliance.name }}</strong>
+          <span class="meta">{{ kinds[appliance.kind] }} · {{ appliance.programs.length }} programas</span>
+        </span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path [attr.d]="expandedId() === appliance.id ? 'm6 15 6-6 6 6' : 'm6 9 6 6 6-6'" />
+        </svg>
+      </button>
+
+      @if (expandedId() === appliance.id) {
+        <ul class="programs">
+          @for (program of appliance.programs; track $index) {
+            <li>
+              {{ program.name }}
+              @if (program.max_temp) {
+                <span class="meta">hasta {{ program.max_temp }}°</span>
+              }
+            </li>
+          }
+        </ul>
+        @if (appliance.temperatures.length) {
+          <p class="meta">Temperaturas: {{ appliance.temperatures.join('°, ') }}°</p>
+        }
+        @if (appliance.spin_speeds.length) {
+          <p class="meta">Centrifugado: {{ appliance.spin_speeds.join(', ') }} rpm</p>
+        }
+        <div class="row-actions">
+          <button type="button" class="link" (click)="edit(appliance)">Editar</button>
+          <button type="button" class="link-danger" (click)="remove(appliance)">Borrar</button>
+        </div>
+      }
+    </article>
+  } @empty {
+    @if (!errorMessage()) {
+      <p class="empty">Todavía no has guardado ningún electrodoméstico.</p>
+    }
+  }
+}

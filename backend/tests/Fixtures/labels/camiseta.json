@@ -1,0 +1,13 @@
+{
+  "readable": true,
+  "confidence": 0.95,
+  "wash": { "method": "machine", "max_temp": 40, "cycle": "normal" },
+  "bleach": "none",
+  "tumble_dry": "low",
+  "natural_dry": null,
+  "iron": "medium",
+  "professional": { "dry_clean": null, "wet_clean": null },
+  "fibers": [{ "name": "cotton", "percent": 100 }],
+  "garment": { "type": "tshirt", "embellishments": false },
+  "notes": []
+}

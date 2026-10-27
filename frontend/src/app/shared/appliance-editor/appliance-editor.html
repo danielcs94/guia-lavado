@@ -1,0 +1,61 @@
+<form class="editor card" (ngSubmit)="submit()">
+  <label for="appliance-name">Nombre</label>
+  <input id="appliance-name" type="text" maxlength="60" placeholder="Lavadora de casa" [ngModel]="name()" (ngModelChange)="name.set($event)" name="name" />
+
+  <label for="appliance-kind">Tipo</label>
+  <select id="appliance-kind" [ngModel]="kind()" (ngModelChange)="kind.set($event)" name="kind">
+    @for (option of kinds; track option[0]) {
+      <option [value]="option[0]">{{ option[1] }}</option>
+    }
+  </select>
+
+  <span class="label">Programas</span>
+  <p class="small">Escribe el nombre tal como sale en el selector y elige de qué tipo es.</p>
+  @for (program of programs(); track $index) {
+    <div class="program">
+      <input
+        type="text"
+        maxlength="60"
+        placeholder="Nombre"
+        [attr.aria-label]="'Nombre del programa ' + ($index + 1)"
+        [ngModel]="program.name"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="updateProgram($index, { name: $event })"
+      />
+      <button type="button" class="remove" aria-label="Quitar programa" (click)="removeProgram($index)">×</button>
+      <select
+        [attr.aria-label]="'Tipo del programa ' + ($index + 1)"
+        [ngModel]="program.category"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="updateProgram($index, { category: $event })"
+      >
+        @for (option of categories; track option[0]) {
+          <option [value]="option[0]">{{ option[1] }}</option>
+        }
+      </select>
+      <input
+        type="number"
+        inputmode="numeric"
+        placeholder="Máx. °"
+        [attr.aria-label]="'Temperatura máxima del programa ' + ($index + 1)"
+        [ngModel]="program.max_temp"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="updateProgram($index, { max_temp: temperature($event) })"
+      />
+    </div>
+  }
+  <button type="button" class="link" (click)="addProgram()">+ Añadir programa</button>
+
+  @if (kind() !== 'dryer') {
+    <label for="appliance-temps">Temperaturas que se pueden elegir (°C)</label>
+    <input id="appliance-temps" type="text" inputmode="numeric" [ngModel]="temperatures()" (ngModelChange)="temperatures.set($event)" name="temperatures" />
+
+    <label for="appliance-spins">Centrifugados que se pueden elegir (rpm)</label>
+    <input id="appliance-spins" type="text" inputmode="numeric" [ngModel]="spinSpeeds()" (ngModelChange)="spinSpeeds.set($event)" name="spin_speeds" />
+  }
+
+  <div class="actions">
+    <button type="submit" class="primary" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar' }}</button>
+    <button type="button" class="secondary" (click)="cancel.emit()">Cancelar</button>
+  </div>
+</form>

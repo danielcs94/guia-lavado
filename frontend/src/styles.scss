@@ -1,0 +1,125 @@
+:root {
+  color-scheme: light dark;
+
+  --bg: #f3f6fa;
+  --surface: #ffffff;
+  --border: #e1e7ef;
+  --text: #16202c;
+  --text-muted: #5d6b7c;
+  --primary: #1769c4;
+  --on-primary: #ffffff;
+  --primary-soft: #e6f0fb;
+
+  --ok: #1e8a4c;
+  --ok-bg: #eaf7ef;
+  --careful: #9a6a00;
+  --careful-bg: #fdf5df;
+  --warn: #c2530f;
+  --warn-bg: #fdefe5;
+  --danger: #c62f2f;
+  --danger-bg: #fcebeb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f151c;
+    --surface: #18212b;
+    --border: #273341;
+    --text: #e8eef5;
+    --text-muted: #94a3b4;
+    --primary: #5aa6f5;
+    --on-primary: #0b1724;
+    --primary-soft: #16304b;
+
+    --ok: #5ccf8c;
+    --ok-bg: #12291d;
+    --careful: #e6bb4f;
+    --careful-bg: #2b2412;
+    --warn: #f0935a;
+    --warn-bg: #2e1c11;
+    --danger: #f07a7a;
+    --danger-bg: #2f1616;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  color: var(--primary);
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+input[type='text'],
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; // evita el zoom automático de iOS al enfocar
+}
+
+.error {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.spinner {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.primary,
+.secondary {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 0;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.secondary {
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}

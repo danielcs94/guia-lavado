@@ -1,0 +1,13 @@
+{
+  "readable": true,
+  "confidence": 0.85,
+  "wash": { "method": "none", "max_temp": null, "cycle": null },
+  "bleach": "none",
+  "tumble_dry": "none",
+  "natural_dry": null,
+  "iron": "medium",
+  "professional": { "dry_clean": "P", "wet_clean": null },
+  "fibers": [{ "name": "wool", "percent": 70 }, { "name": "polyester", "percent": 30 }],
+  "garment": { "type": "blazer", "embellishments": false },
+  "notes": []
+}

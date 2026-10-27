@@ -1,0 +1,44 @@
+<header class="intro">
+  <h1>Guía de lavado</h1>
+  @if (editing()) {
+    <p>Marca los símbolos que ves en la etiqueta. Si uno no aparece, deja «No indica».</p>
+  } @else if (!result()) {
+    <p>Haz una foto a la etiqueta de la prenda o marca tú los símbolos, y te digo cómo lavarla o si es mejor llevarla a la tintorería.</p>
+  }
+</header>
+
+@if (editing()) {
+  <app-label-editor [label]="result()?.label ?? null" (save)="onLabelEdited($event)" (cancel)="editing.set(false)" />
+} @else {
+  <div class="start">
+    <app-photo-button
+      [text]="loading() ? 'Leyendo la etiqueta…' : result() ? 'Escanear otra etiqueta' : 'Hacer foto a la etiqueta'"
+      [disabled]="loading()"
+      (photo)="onPhoto($event)"
+    />
+    @if (!loading()) {
+      <button type="button" class="secondary" (click)="startEditing()">
+        {{ result() ? 'Corregir los símbolos' : 'Marcar los símbolos a mano' }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading" role="status">
+      <span class="spinner"></span>
+      La IA está leyendo los símbolos. En el Mac puede tardar hasta un minuto.
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (result(); as result) {
+    <app-advice-card [result]="result" (garmentChange)="onGarmentChange($event)" />
+  } @else if (!loading()) {
+    <p class="hint">
+      Consejo: guarda antes tu lavadora en <a routerLink="/electrodomesticos">Electrodomésticos</a> y te diré el programa exacto.
+    </p>
+  }
+}

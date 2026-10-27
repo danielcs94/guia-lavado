@@ -1,0 +1,13 @@
+{
+  "readable": true,
+  "confidence": 0.9,
+  "wash": { "method": "hand", "max_temp": 30, "cycle": null },
+  "bleach": "none",
+  "tumble_dry": "none",
+  "natural_dry": "flat",
+  "iron": "low",
+  "professional": { "dry_clean": "P", "wet_clean": null },
+  "fibers": [{ "name": "wool", "percent": 100 }],
+  "garment": { "type": "sweater", "embellishments": false },
+  "notes": ["Lavar del revés"]
+}

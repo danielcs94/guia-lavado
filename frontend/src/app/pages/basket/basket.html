@@ -1,0 +1,198 @@
+<header class="intro">
+  <h1>Colada</h1>
+  @if (editing()) {
+    <p>Marca los símbolos que ves en la etiqueta. Si uno no aparece, deja «No indica».</p>
+  } @else {
+    <p>Haz una foto a la etiqueta de cada prenda y te digo cómo repartirlas en el menor número de lavadoras sin estropear nada.</p>
+  }
+</header>
+
+@if (editing(); as id) {
+  <app-label-editor [label]="editingLabel()" (save)="onLabelEdited($event)" (cancel)="editing.set(null)" />
+} @else {
+  <div class="add">
+    <app-photo-button text="Foto a una etiqueta" (photo)="basket.addPhotos([$event])" />
+    <app-photo-button text="Elegir varias de la galería" [multiple]="true" [secondary]="true" (photos)="basket.addPhotos($event)" />
+    <button type="button" class="link" (click)="startEditing('new')">O añade una prenda marcando los símbolos a mano</button>
+  </div>
+
+  @if (basket.pending()) {
+    <div class="loading" role="status">
+      <span class="spinner"></span>
+      Leyendo {{ basket.pending() === 1 ? '1 etiqueta' : basket.pending() + ' etiquetas' }}, de una en una. Puedes seguir haciendo fotos.
+    </div>
+  }
+
+  @if (basket.items().length) {
+    <section class="items">
+      <div class="items-header">
+        <h2>{{ basket.items().length === 1 ? '1 prenda' : basket.items().length + ' prendas' }}</h2>
+        <button type="button" class="link" (click)="clear()">Vaciar</button>
+      </div>
+
+      @for (item of basket.items(); track item.id) {
+        <article class="card item" [class.failed]="item.status === 'error'">
+          <div class="item-top">
+            @if (item.thumb) {
+              <img [src]="item.thumb" alt="" />
+            } @else {
+              <div class="no-thumb" aria-hidden="true">✎</div>
+            }
+            <div class="item-info">
+              <strong>{{ name(item.id) }}</strong>
+              @switch (item.status) {
+                @case ('waiting') { <span class="muted">En cola…</span> }
+                @case ('reading') { <span class="muted"><span class="spinner small"></span> Leyendo…</span> }
+                @case ('error') { <span class="item-error">{{ item.error }}</span> }
+              }
+            </div>
+            <button type="button" class="remove" aria-label="Quitar prenda" (click)="basket.remove(item.id)">×</button>
+          </div>
+
+          @if (item.status === 'ready') {
+            <div class="colors" role="group" aria-label="Color">
+              @for (color of colors; track color.value) {
+                <button
+                  type="button"
+                  class="color"
+                  [class.selected]="item.color === color.value"
+                  (click)="setColor(item, color.value)"
+                >
+                  <span class="swatch" [class]="color.value"></span>
+                  {{ color.text }}
+                </button>
+              }
+            </div>
+            <div class="item-bottom">
+              <select [ngModel]="item.garmentType" (ngModelChange)="setGarment(item, $event)" aria-label="Tipo de prenda">
+                <option [ngValue]="null">¿Qué prenda es?</option>
+                @for (garment of garments; track garment[0]) {
+                  <option [ngValue]="garment[0]">{{ garment[1] }}</option>
+                }
+              </select>
+              <button type="button" class="link" (click)="startEditing(item.id)">Símbolos</button>
+            </div>
+          } @else if (item.status === 'error') {
+            <button type="button" class="link" (click)="startEditing(item.id)">Marcar los símbolos a mano</button>
+          }
+        </article>
+      }
+    </section>
+
+    @if (!basket.plan()) {
+      <div class="plan-action">
+        @if (basket.missingColor()) {
+          <p class="muted">Elige el color de {{ basket.missingColor() === 1 ? '1 prenda' : basket.missingColor() + ' prendas' }} para separar bien la ropa.</p>
+        }
+        <button type="button" class="primary" [disabled]="!basket.canPlan() || basket.planning()" (click)="makePlan()">
+          {{ basket.planning() ? 'Organizando…' : 'Organizar la colada' }}
+        </button>
+      </div>
+    }
+
+    @if (basket.planError()) {
+      <p class="error">{{ basket.planError() }}</p>
+    }
+  } @else if (!basket.pending()) {
+    <p class="hint">
+      Consejo: guarda tu lavadora en <a routerLink="/electrodomesticos">Electrodomésticos</a> y te diré el programa exacto de cada colada.
+    </p>
+  }
+
+  @if (basket.plan(); as plan) {
+    <section class="plan">
+      <h2>{{ plan.summary }}</h2>
+
+      @for (load of plan.loads; track $index) {
+        <article class="card load" [class]="load.kind">
+          <header>
+            <span class="step">Lavadora {{ $index + 1 }}</span>
+            <h3>{{ load.title }}</h3>
+            <p class="muted">{{ texts.CYCLES[load.settings.cycle] }} · {{ load.settings.max_temp }}° · {{ load.settings.max_spin }} rpm máx.</p>
+          </header>
+
+          <div class="fill" [attr.aria-label]="'Llena al ' + (load.fill * 100) + '%'">
+            <div class="bar"><span [style.width.%]="load.fill * 100"></span></div>
+            <span class="muted">~{{ load.weight_kg }} de {{ load.capacity_kg }} kg</span>
+          </div>
+
+          <ul class="chips">
+            @for (id of load.item_ids; track id) {
+              <li>
+                @if (thumb(id); as src) { <img [src]="src" alt="" /> }
+                {{ name(id) }}
+              </li>
+            }
+          </ul>
+
+          @for (suggestion of load.wash; track suggestion.appliance_id) {
+            <p class="suggestion"><strong>{{ suggestion.appliance_name }}:</strong> {{ suggestion.message }}</p>
+          }
+
+          <div class="drying">
+            @if (load.dryer_ids.length) {
+              <p>
+                <strong>A la secadora ({{ load.tumble_dry === 'low' ? 'baja temperatura' : 'normal' }}):</strong>
+                @for (id of load.dryer_ids; track id; let last = $last) { {{ name(id) }}{{ last ? '.' : ', ' }} }
+              </p>
+              @for (suggestion of load.dry; track suggestion.appliance_id) {
+                <p class="muted">{{ suggestion.appliance_name }}: {{ suggestion.message }}</p>
+              }
+            }
+            @if (load.air_dry.length) {
+              <p>
+                <strong>{{ load.dryer_ids.length ? 'Sácalas antes y tiéndelas' : 'Tender' }}:</strong>
+                @for (dry of load.air_dry; track dry.id; let last = $last) {
+                  {{ name(dry.id) }}@if (dry.natural_dry) { ({{ texts.NATURAL_DRY[dry.natural_dry].toLowerCase() }})}{{ last ? '.' : ', ' }}
+                }
+              </p>
+            }
+          </div>
+
+          @if (load.tips.length) {
+            <ul class="tips">
+              @for (tip of load.tips; track tip) {
+                <li>{{ tip }}</li>
+              }
+            </ul>
+          }
+        </article>
+      }
+
+      @if (plan.hand_wash.length) {
+        <article class="card load hand">
+          <h3>A mano</h3>
+          <p class="muted">Tu lavadora no tiene programa de lana o lavado a mano.</p>
+          <ul>
+            @for (item of plan.hand_wash; track item.id) {
+              <li>{{ name(item.id) }}: agua a {{ item.max_temp }}° como máximo, sin frotar ni retorcer.</li>
+            }
+          </ul>
+        </article>
+      }
+
+      @if (plan.dry_clean.length) {
+        <article class="card load dry-clean">
+          <h3>A la tintorería</h3>
+          <ul>
+            @for (item of plan.dry_clean; track item.id) {
+              <li>
+                <strong>{{ name(item.id) }}</strong>{{ item.required ? '' : ' (recomendado)' }}: {{ item.reasons.join(' ') }}
+              </li>
+            }
+          </ul>
+        </article>
+      }
+
+      @if (plan.needs_retake.length) {
+        <article class="card load retake">
+          <h3>Sin leer</h3>
+          <p>
+            @for (id of plan.needs_retake; track id; let last = $last) { {{ name(id) }}{{ last ? '' : ', ' }} }:
+            vuelve a hacerles la foto o marca los símbolos a mano.
+          </p>
+        </article>
+      }
+    </section>
+  }
+}

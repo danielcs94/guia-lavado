@@ -1,0 +1,179 @@
+<form class="editor" (ngSubmit)="submit()">
+  <fieldset>
+    <legend>Lavado</legend>
+    <div class="chips">
+      @for (choice of washMethods; track choice.text) {
+        <button type="button" class="chip" [class.selected]="wash().method === choice.value" (click)="setWash({ method: choice.value })">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  @if (wash().method === 'machine' || wash().method === 'hand') {
+    <fieldset>
+      <legend>Temperatura máxima</legend>
+      <div class="chips">
+        @for (choice of temperatures; track choice.text) {
+          @if (wash().method === 'machine' || choice.value === null || choice.value <= 40) {
+            <button type="button" class="chip" [class.selected]="wash().max_temp === choice.value" (click)="setWash({ max_temp: choice.value })">
+              @if (choice.symbol) {
+                <app-care-symbol [symbol]="choice.symbol" />
+              }
+              <span>{{ choice.text }}</span>
+            </button>
+          }
+        }
+      </div>
+    </fieldset>
+  }
+
+  @if (wash().method === 'machine') {
+    <fieldset>
+      <legend>Rayas debajo del barreño</legend>
+      <div class="chips">
+        @for (choice of cycles; track choice.text) {
+          <button type="button" class="chip" [class.selected]="wash().cycle === choice.value" (click)="setWash({ cycle: choice.value })">
+            @if (choice.symbol) {
+              <app-care-symbol [symbol]="choice.symbol" />
+            }
+            <span>{{ choice.text }}</span>
+          </button>
+        }
+      </div>
+    </fieldset>
+  }
+
+  <fieldset>
+    <legend>Lejía (triángulo)</legend>
+    <div class="chips">
+      @for (choice of bleaches; track choice.text) {
+        <button type="button" class="chip" [class.selected]="draft().bleach === choice.value" (click)="set('bleach', choice.value)">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Secadora (círculo en un cuadrado)</legend>
+    <div class="chips">
+      @for (choice of tumbleDries; track choice.text) {
+        <button type="button" class="chip" [class.selected]="draft().tumble_dry === choice.value" (click)="set('tumble_dry', choice.value)">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Secado natural (cuadrado)</legend>
+    <div class="chips">
+      @for (choice of naturalDries; track choice.text) {
+        <button type="button" class="chip" [class.selected]="draft().natural_dry === choice.value" (click)="set('natural_dry', choice.value)">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Plancha</legend>
+    <div class="chips">
+      @for (choice of irons; track choice.text) {
+        <button type="button" class="chip" [class.selected]="draft().iron === choice.value" (click)="set('iron', choice.value)">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Limpieza profesional (círculo)</legend>
+    <div class="chips">
+      @for (choice of professionals; track choice.text) {
+        <button type="button" class="chip" [class.selected]="professional() === choice.value" (click)="setProfessional(choice.value)">
+          @if (choice.symbol) {
+            <app-care-symbol [symbol]="choice.symbol" />
+          }
+          <span>{{ choice.text }}</span>
+        </button>
+      }
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Composición</legend>
+    @for (fiber of draft().fibers; track $index) {
+      <div class="fiber">
+        <input
+          type="number"
+          inputmode="numeric"
+          min="0"
+          max="100"
+          placeholder="%"
+          [attr.aria-label]="'Porcentaje de la fibra ' + ($index + 1)"
+          [ngModel]="fiber.percent"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateFiber($index, { percent: percent($event) })"
+        />
+        <select
+          [attr.aria-label]="'Fibra ' + ($index + 1)"
+          [ngModel]="fiber.name"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="updateFiber($index, { name: $event })"
+        >
+          @for (option of fibers; track option[0]) {
+            <option [value]="option[0]">{{ option[1] }}</option>
+          }
+        </select>
+        <button type="button" class="remove" aria-label="Quitar fibra" (click)="removeFiber($index)">×</button>
+      </div>
+    }
+    <button type="button" class="link" (click)="addFiber()">+ Añadir fibra</button>
+  </fieldset>
+
+  <fieldset>
+    <legend>Prenda</legend>
+    <select
+      aria-label="Tipo de prenda"
+      [ngModel]="draft().garment?.type ?? null"
+      [ngModelOptions]="{ standalone: true }"
+      (ngModelChange)="setGarment({ type: $event })"
+    >
+      <option [ngValue]="null">Sin indicar</option>
+      @for (garment of garments; track garment[0]) {
+        <option [ngValue]="garment[0]">{{ garment[1] }}</option>
+      }
+    </select>
+    <label class="check">
+      <input
+        type="checkbox"
+        [ngModel]="draft().garment?.embellishments ?? false"
+        [ngModelOptions]="{ standalone: true }"
+        (ngModelChange)="setGarment({ embellishments: $event })"
+      />
+      Tiene lentejuelas, pedrería o estampados
+    </label>
+  </fieldset>
+
+  <div class="actions">
+    <button type="submit" class="primary">Ver recomendación</button>
+    <button type="button" class="secondary" (click)="cancel.emit()">Cancelar</button>
+  </div>
+</form>
