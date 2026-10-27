@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { Basket as BasketStore, BasketItem } from '../../core/basket';
 import { ClothColor, GarmentType, Label } from '../../core/laundry-api';
 import { CYCLES, FIBERS, GARMENTS, NATURAL_DRY, TUMBLE_DRY } from '../../core/texts';
+import { CareSymbol } from '../../shared/care-symbol/care-symbol';
 import { LabelEditor } from '../../shared/label-editor/label-editor';
 import { PhotoButton } from '../../shared/photo-button/photo-button';
 
@@ -20,7 +21,7 @@ const COLORS: { value: ClothColor; text: string }[] = [
  */
 @Component({
   selector: 'app-basket',
-  imports: [FormsModule, RouterLink, LabelEditor, PhotoButton],
+  imports: [FormsModule, RouterLink, CareSymbol, LabelEditor, PhotoButton],
   templateUrl: './basket.html',
   styleUrl: './basket.scss',
 })
@@ -49,6 +50,10 @@ export class Basket {
     const garment = item.garmentType ? GARMENTS[item.garmentType] : `Prenda ${index + 1}`;
     const fiber = item.label?.fibers[0];
     return fiber ? `${garment} de ${FIBERS[fiber.name] ?? fiber.name}` : garment;
+  }
+
+  protected kilos(value: number): string {
+    return value.toLocaleString('es-ES', { maximumFractionDigits: 1 });
   }
 
   protected thumb(id: string): string | null {

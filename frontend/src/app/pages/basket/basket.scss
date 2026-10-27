@@ -1,17 +1,3 @@
-.intro {
-  margin-bottom: 20px;
-
-  h1 {
-    margin: 0 0 6px;
-    font-size: 1.75rem;
-  }
-
-  p {
-    margin: 0;
-    color: var(--text-muted);
-  }
-}
-
 h2 {
   margin: 0;
   font-size: 1.15rem;
@@ -160,7 +146,7 @@ p {
   padding: 8px 2px;
   border: 1.5px solid var(--border);
   border-radius: 12px;
-  background: var(--bg);
+  background: var(--surface-2);
   color: var(--text);
   font: inherit;
   font-size: 0.78rem;
@@ -235,24 +221,35 @@ p {
   margin-top: 24px;
 }
 
+.summary {
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
 .load {
+  --load-color: var(--primary);
+  --load-bg: var(--primary-soft);
+
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  border-left: 6px solid var(--load-color, var(--primary));
+  gap: 14px;
 
   &.delicate,
   &.down,
   &.hand {
     --load-color: var(--careful);
+    --load-bg: var(--careful-bg);
   }
 
   &.dry-clean {
     --load-color: var(--danger);
+    --load-bg: var(--danger-bg);
   }
 
   &.retake {
     --load-color: var(--warn);
+    --load-bg: var(--warn-bg);
   }
 
   ul {
@@ -261,14 +258,32 @@ p {
   }
 }
 
-.step {
-  display: block;
-  margin-bottom: 2px;
-  color: var(--primary);
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+.load-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+  }
+}
+
+.badge {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--load-bg);
+  color: var(--load-color);
+  font-size: 1.2rem;
+  font-weight: 800;
+
+  app-care-symbol {
+    width: 28px;
+    height: 28px;
+  }
 }
 
 .fill {
@@ -287,7 +302,7 @@ p {
       display: block;
       height: 100%;
       border-radius: 4px;
-      background: var(--load-color, var(--primary));
+      background: var(--load-color);
     }
   }
 
@@ -310,7 +325,7 @@ p {
     gap: 6px;
     padding: 4px 10px 4px 4px;
     border-radius: 999px;
-    background: var(--bg);
+    background: var(--surface-2);
     font-size: 0.85rem;
 
     img {

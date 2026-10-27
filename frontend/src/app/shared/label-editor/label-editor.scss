@@ -9,8 +9,9 @@ fieldset {
   margin: 0;
   padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 legend {
@@ -42,7 +43,7 @@ legend {
   padding: 8px 4px;
   border: 1.5px solid var(--border);
   border-radius: 12px;
-  background: var(--bg);
+  background: var(--surface-2);
   color: var(--text);
   font: inherit;
   font-size: 0.72rem;
@@ -74,7 +75,7 @@ legend {
     padding: 12px;
     border: 1px solid var(--border);
     border-radius: 12px;
-    background: var(--bg);
+    background: var(--surface-2);
     color: var(--text);
     font: inherit;
     font-size: 16px;

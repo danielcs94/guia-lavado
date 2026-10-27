@@ -101,19 +101,21 @@
 
   @if (basket.plan(); as plan) {
     <section class="plan">
-      <h2>{{ plan.summary }}</h2>
+      <h2 class="summary">{{ plan.summary }}</h2>
 
       @for (load of plan.loads; track $index) {
         <article class="card load" [class]="load.kind">
-          <header>
-            <span class="step">Lavadora {{ $index + 1 }}</span>
-            <h3>{{ load.title }}</h3>
-            <p class="muted">{{ texts.CYCLES[load.settings.cycle] }} · {{ load.settings.max_temp }}° · {{ load.settings.max_spin }} rpm máx.</p>
+          <header class="load-head">
+            <span class="badge" [attr.aria-label]="'Lavadora ' + ($index + 1)">{{ $index + 1 }}</span>
+            <div>
+              <h3>{{ load.title }}</h3>
+              <p class="muted">{{ texts.CYCLES[load.settings.cycle] }} · {{ load.settings.max_temp }}° · {{ load.settings.max_spin }} rpm máx.</p>
+            </div>
           </header>
 
           <div class="fill" [attr.aria-label]="'Llena al ' + (load.fill * 100) + '%'">
             <div class="bar"><span [style.width.%]="load.fill * 100"></span></div>
-            <span class="muted">~{{ load.weight_kg }} de {{ load.capacity_kg }} kg</span>
+            <span class="muted">~{{ kilos(load.weight_kg) }} de {{ kilos(load.capacity_kg) }} kg</span>
           </div>
 
           <ul class="chips">
@@ -161,7 +163,10 @@
 
       @if (plan.hand_wash.length) {
         <article class="card load hand">
-          <h3>A mano</h3>
+          <header class="load-head">
+            <span class="badge" aria-hidden="true"><app-care-symbol symbol="wash-hand" /></span>
+            <h3>A mano</h3>
+          </header>
           <p class="muted">Tu lavadora no tiene programa de lana o lavado a mano.</p>
           <ul>
             @for (item of plan.hand_wash; track item.id) {
@@ -173,7 +178,10 @@
 
       @if (plan.dry_clean.length) {
         <article class="card load dry-clean">
-          <h3>A la tintorería</h3>
+          <header class="load-head">
+            <span class="badge" aria-hidden="true"><app-care-symbol symbol="pro-P" /></span>
+            <h3>A la tintorería</h3>
+          </header>
           <ul>
             @for (item of plan.dry_clean; track item.id) {
               <li>
@@ -186,7 +194,10 @@
 
       @if (plan.needs_retake.length) {
         <article class="card load retake">
-          <h3>Sin leer</h3>
+          <header class="load-head">
+            <span class="badge" aria-hidden="true">?</span>
+            <h3>Sin leer</h3>
+          </header>
           <p>
             @for (id of plan.needs_retake; track id; let last = $last) { {{ name(id) }}{{ last ? '' : ', ' }} }:
             vuelve a hacerles la foto o marca los símbolos a mano.

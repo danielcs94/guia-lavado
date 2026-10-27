@@ -116,13 +116,18 @@ final class LoadPlanner
     }
 
     /**
-     * Si hay pocas toallas no compensa poner una lavadora solo para ellas: van con el resto.
+     * Toallas aparte solo si compensa: si hay pocas, o si el resto de la ropa de ese
+     * color no llena ni media lavadora, va todo junto.
      */
     private function mergeSmallTowelGroups(array $groups): array
     {
         foreach (['light', 'dark'] as $tone) {
             $towels = $groups["towels-{$tone}"] ?? [];
-            if ($towels && array_sum(array_column($towels, 'weight')) < self::MIN_TOWEL_LOAD) {
+            $others = $groups["normal-{$tone}"] ?? [];
+            $othersFill = array_sum(array_column($others, 'weight')) / self::CAPACITY['normal'];
+            $fewTowels = array_sum(array_column($towels, 'weight')) < self::MIN_TOWEL_LOAD;
+
+            if ($towels && ($fewTowels || ($others && $othersFill < self::SMALL_FILL))) {
                 $groups["normal-{$tone}"] = [...($groups["normal-{$tone}"] ?? []), ...$towels];
                 unset($groups["towels-{$tone}"]);
             }

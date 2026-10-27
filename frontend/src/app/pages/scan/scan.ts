@@ -6,12 +6,13 @@ import { compressImage } from '../../core/image';
 import { errorMessage } from '../../core/http-error';
 import { GarmentType, Label, LabelResult, LaundryApi } from '../../core/laundry-api';
 import { AdviceCard } from '../../shared/advice-card/advice-card';
+import { CareSymbol } from '../../shared/care-symbol/care-symbol';
 import { LabelEditor } from '../../shared/label-editor/label-editor';
 import { PhotoButton } from '../../shared/photo-button/photo-button';
 
 @Component({
   selector: 'app-scan',
-  imports: [RouterLink, AdviceCard, LabelEditor, PhotoButton],
+  imports: [RouterLink, AdviceCard, CareSymbol, LabelEditor, PhotoButton],
   templateUrl: './scan.html',
   styleUrl: './scan.scss',
 })

@@ -4,13 +4,19 @@
   justify-content: center;
   gap: 10px;
   width: 100%;
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--primary);
+  padding: 17px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  box-shadow: var(--shadow-lg);
   color: var(--on-primary);
   font-size: 1.05rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.1s;
+
+  &:active {
+    transform: scale(0.98);
+  }
 
   svg {
     width: 24px;
@@ -25,6 +31,7 @@
     padding: 14px;
     border: 1.5px solid var(--border);
     background: var(--surface);
+    box-shadow: none;
     color: var(--text);
     font-size: 1rem;
   }

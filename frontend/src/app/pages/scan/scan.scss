@@ -1,17 +1,3 @@
-.intro {
-  margin-bottom: 20px;
-
-  h1 {
-    margin: 0 0 6px;
-    font-size: 1.75rem;
-  }
-
-  p {
-    margin: 0;
-    color: var(--text-muted);
-  }
-}
-
 .start {
   display: flex;
   flex-direction: column;
@@ -23,15 +9,82 @@
   align-items: center;
   gap: 12px;
   margin-top: 20px;
-  color: var(--text-muted);
-}
-
-.hint {
-  margin-top: 20px;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-weight: 500;
 }
 
 app-advice-card {
   margin-top: 20px;
+}
+
+.how {
+  margin-top: 24px;
+
+  h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  ol {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    gap: 14px;
+  }
+
+  .icon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--primary-soft);
+    color: var(--primary);
+
+    svg,
+    app-care-symbol {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  strong {
+    display: block;
+    margin-bottom: 1px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .how-basket {
+    display: block;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    strong {
+      display: inline;
+      color: var(--primary);
+    }
+  }
 }

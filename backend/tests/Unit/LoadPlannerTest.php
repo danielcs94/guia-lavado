@@ -102,13 +102,30 @@ class LoadPlannerTest extends TestCase
         $this->assertCount(1, $few['loads']);
         $this->assertSame(40, $few['loads'][0]['settings']['max_temp']);
 
+        $shirt = $this->label('camiseta');
+        $shirt['garment']['type'] = 'jeans';
         $many = $this->plan([
-            $this->item('camiseta', 'camiseta', 'white'),
+            ...array_map(fn ($i) => ['id' => "v{$i}", 'label' => $shirt, 'color' => 'white'], range(1, 4)),
             ...array_map(fn ($i) => ['id' => "t{$i}", 'label' => $towel, 'color' => 'white'], range(1, 4)),
         ]);
         $this->assertCount(2, $many['loads']);
         $this->assertSame('towels', $many['loads'][1]['kind']);
         $this->assertSame(60, $many['loads'][1]['settings']['max_temp']);
+    }
+
+    public function test_many_towels_join_a_nearly_empty_load_instead_of_two_small_ones(): void
+    {
+        $towel = $this->label('camiseta');
+        $towel['garment']['type'] = 'towel';
+        $towel['wash']['max_temp'] = 60;
+
+        $plan = $this->plan([
+            $this->item('camiseta', 'camiseta', 'white'),
+            ...array_map(fn ($i) => ['id' => "t{$i}", 'label' => $towel, 'color' => 'white'], range(1, 4)),
+        ]);
+
+        $this->assertCount(1, $plan['loads']);
+        $this->assertSame('normal', $plan['loads'][0]['kind']);
     }
 
     public function test_small_load_gets_efficiency_tip(): void
