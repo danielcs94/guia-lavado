@@ -15,6 +15,15 @@ Haces una foto a la etiqueta de una prenda (o marcas tú los símbolos) y te dic
 
 Arranca Ollama, el backend (8001) y el frontend (4300), y te dice la dirección para abrirlo en el iPhone. Ctrl+C lo para todo.
 
+### Usarla desde fuera de casa (gratis)
+
+```bash
+brew install cloudflared   # solo la primera vez
+./arrancar.sh --fuera
+```
+
+Abre un [túnel rápido de Cloudflare](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/) (sin cuenta) y te da una dirección `https://….trycloudflare.com` que funciona desde cualquier móvil. La dirección cambia cada vez que lo arrancas y solo funciona mientras el Mac está encendido con el script en marcha. Cualquiera que tenga el enlace puede usar la app y ver o cambiar los electrodomésticos guardados, así que compártelo solo con quien quieras y páralo cuando no se use.
+
 ## Backend (Laravel)
 
 ```bash
