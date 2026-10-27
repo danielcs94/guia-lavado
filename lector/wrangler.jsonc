@@ -1,0 +1,13 @@
+{
+  // Intermediario entre la app y la API de Claude: guarda la clave en secreto.
+  "name": "guia-lavado",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    // Sonnet: buen equilibrio entre precisión y precio (~2 céntimos por foto).
+    "MODELO": "claude-sonnet-5-5"
+  }
+  // Secretos (no van aquí, se ponen con `npx wrangler secret put …`):
+  //   ANTHROPIC_API_KEY  la clave de https://platform.claude.com
+  //   CODIGO_ACCESO      lo que hay que escribir en la app para poder leer fotos
+}

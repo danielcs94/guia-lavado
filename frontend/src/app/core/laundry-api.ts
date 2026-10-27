@@ -1,8 +1,13 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 
-const API_URL = '/api';
+import { advise } from '../engine/advisor';
+import { planLoads } from '../engine/load-planner';
+import { categoryOf } from '../engine/program-category';
+import { matchAppliances } from '../engine/program-matcher';
+import { deleteAppliance, loadAppliances, saveAppliance } from './appliance-store';
+import { PhotoReader } from './photo-reader';
 
 export type GarmentType =
   | 'tshirt' | 'shirt' | 'sweater' | 'trousers' | 'jeans' | 'dress' | 'skirt' | 'blazer' | 'suit'
@@ -115,49 +120,87 @@ export interface Appliance {
 
 export type ApplianceInput = Omit<Appliance, 'id'>;
 
+const MIN_CONFIDENCE = 0.6;
+
+/**
+ * Todo lo que hace la app: las fotos las lee la IA a través del intermediario y
+ * las decisiones las toma el motor de reglas aquí mismo, en el móvil.
+ */
 @Injectable({ providedIn: 'root' })
 export class LaundryApi {
-  private readonly http = inject(HttpClient);
+  private readonly reader = inject(PhotoReader);
 
   scanLabel(photo: Blob): Observable<LabelResult> {
-    return this.http.post<LabelResult>(`${API_URL}/labels/scan`, this.photoForm(photo));
+    return this.reader.readLabel(photo).pipe(map((label) => labelResult(label, null)));
   }
 
   advice(label: Label, garmentType: GarmentType | null): Observable<LabelResult> {
-    return this.http.post<LabelResult>(`${API_URL}/labels/advice`, { label, garment_type: garmentType });
+    return of(labelResult(label, garmentType));
   }
 
   planLoads(items: PlanItem[]): Observable<LoadPlan> {
-    return this.http.post<LoadPlan>(`${API_URL}/loads/plan`, { items });
+    const labelled = items.map((item) => ({ ...item, label: withGarment(item.label, item.garment_type) }));
+    return of(planLoads(labelled, loadAppliances()));
   }
 
   appliances(): Observable<Appliance[]> {
-    return this.http.get<Appliance[]>(`${API_URL}/appliances`);
+    return of(loadAppliances());
   }
 
   scanAppliance(photo: Blob, name: string): Observable<Appliance> {
-    const form = this.photoForm(photo);
-    if (name.trim()) {
-      form.append('name', name.trim());
-    }
-    return this.http.post<Appliance>(`${API_URL}/appliances/scan`, form);
+    return this.reader.readAppliance(photo).pipe(
+      map((reading) => {
+        if (!reading.readable || reading.confidence < MIN_CONFIDENCE || reading.programs.length === 0) {
+          throw new HttpErrorResponse({
+            status: 422,
+            error: { message: 'No se leen bien los programas. Haz otra foto del panel completo, de frente y con luz.' },
+          });
+        }
+
+        return saveAppliance({
+          name: name.trim() || defaultName(reading.kind, reading.brand),
+          kind: reading.kind,
+          brand: reading.brand,
+          model: reading.model,
+          programs: reading.programs.map((program) => ({ ...program, category: categoryOf(program) })),
+          temperatures: reading.temperatures,
+          spin_speeds: reading.spin_speeds,
+        });
+      }),
+    );
   }
 
   createAppliance(appliance: ApplianceInput): Observable<Appliance> {
-    return this.http.post<Appliance>(`${API_URL}/appliances`, appliance);
+    return of(saveAppliance(appliance));
   }
 
   updateAppliance(id: number, appliance: ApplianceInput): Observable<Appliance> {
-    return this.http.put<Appliance>(`${API_URL}/appliances/${id}`, appliance);
+    return of(saveAppliance(appliance, id));
   }
 
   deleteAppliance(id: number): Observable<void> {
-    return this.http.delete<void>(`${API_URL}/appliances/${id}`);
+    deleteAppliance(id);
+    return of(undefined);
   }
+}
 
-  private photoForm(photo: Blob): FormData {
-    const form = new FormData();
-    form.append('photo', photo, 'foto.jpg');
-    return form;
-  }
+function withGarment(label: Label, garmentType: GarmentType | null): Label {
+  return garmentType === null
+    ? label
+    : { ...label, garment: { type: garmentType, embellishments: label.garment?.embellishments ?? false } };
+}
+
+function labelResult(read: Label, garmentType: GarmentType | null): LabelResult {
+  const label = withGarment(read, garmentType);
+  const advice = advise(label);
+
+  return {
+    label,
+    advice: advice.needs_retake ? advice : { ...advice, appliances: matchAppliances(label, advice.settings, loadAppliances()) },
+  };
+}
+
+function defaultName(kind: Appliance['kind'], brand: string | null): string {
+  const names = { washer: 'Lavadora', dryer: 'Secadora', washer_dryer: 'Lavadora-secadora' };
+  return `${names[kind]} ${brand ?? ''}`.trim();
 }

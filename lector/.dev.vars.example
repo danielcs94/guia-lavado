@@ -1,0 +1,3 @@
+# Copia este archivo como .dev.vars para probar el intermediario en local (no se sube a git).
+ANTHROPIC_API_KEY=
+CODIGO_ACCESO=
