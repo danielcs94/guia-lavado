@@ -3,6 +3,9 @@
   "name": "guia-lavado",
   "main": "src/index.ts",
   "compatibility_date": "2026-10-01",
+  // Dirección fija https://guia-lavado.danielcs94.workers.dev, sin direcciones de prueba por versión.
+  "workers_dev": true,
+  "preview_urls": false,
   "vars": {
     // Sonnet: buen equilibrio entre precisión y precio (~2 céntimos por foto).
     "MODELO": "claude-sonnet-5-5"
